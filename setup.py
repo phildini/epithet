@@ -20,7 +20,7 @@ test_requirements = [
 
 setup(
     name='epithet',
-    version='0.0.1',
+    version='0.0.2',
     description="Manage your labels.",
     long_description=readme + '\n\n' + history,
     author="Philip James",
