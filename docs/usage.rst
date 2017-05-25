@@ -5,6 +5,10 @@ Usage
 These docs are a little lacking at the moment, and we'd love to see them
 improved!
 
+You can use the epithet commands without a key, but you might quickly run into
+rate limiting issues. Get a personal token from Github_ and pass it into the
+``--key`` option to solve this.
+
 To use Epithet in a project::
 
     $ epithet
@@ -29,3 +33,5 @@ To use Epithet in a project::
       --org TEXT    Organization to get repos from
       --repo TEXT   Optionally select a single repo
       --help        Show this message and exit.
+
+.. _Github: https://github.com/settings/tokens

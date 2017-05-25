@@ -2,6 +2,7 @@
 
 import click
 from github import Github
+from github.GithubException import RateLimitExceededException
 
 
 def main():
@@ -34,10 +35,13 @@ def cli(ctx, dryrun):
 @click.option('--repo', help="Optionally select a single repo")
 @click.pass_context
 def list(ctx, key, org, repo):
-    for repo in get_repos(key, org, repo):
-        click.echo("\n * {}:\n".format(repo.name))
-        for label in repo.get_labels():
-            click.echo(" - {} ({})".format(label.name, label.color))
+    try:
+        for repo in get_repos(key, org, repo):
+            click.echo("\n * {}:\n".format(repo.name))
+            for label in repo.get_labels():
+                click.echo(" - {} ({})".format(label.name, label.color))
+    except RateLimitExceededException:
+        click.echo("GitHub rate limit exceeded: Try again with a --key passed in")
 
 
 @cli.command()
@@ -48,28 +52,31 @@ def list(ctx, key, org, repo):
 @click.option('--repo', help="Optionally select a single repo")
 @click.pass_context
 def add(ctx, name, color, key, org, repo):
-    click.echo("name: {}, color: {}".format(name, color))
-    for repo in get_repos(key, org, repo):
-        click.echo(" * Checking {}".format(repo.name))
-        labels = {}
-        for label in repo.get_labels():
-            labels[label.name] = label
-        if name in labels:
-            click.echo(
-                " - Found {} on {} (Dryrun: {})".format(
-                    labels[name].name, repo.name, ctx.obj['dryrun']
+    click.echo("Adding a label with name: {} and  color: {}".format(name, color))
+    try:
+        for repo in get_repos(key, org, repo):
+            click.echo(" * Checking {}".format(repo.name))
+            labels = {}
+            for label in repo.get_labels():
+                labels[label.name] = label
+            if name in labels:
+                click.echo(
+                    " - Found {} on {} (Dryrun: {})".format(
+                        labels[name].name, repo.name, ctx.obj['dryrun']
+                    )
                 )
-            )
-            if labels[name].color != color and not ctx.obj['dryrun']:
-                labels[name].edit(name=name, color=color)
-        else:
-            click.echo(
-                " - Creating {} on {} (Dryrun: {})".format(
-                    name, repo.name, ctx.obj['dryrun']
+                if labels[name].color != color and not ctx.obj['dryrun']:
+                    labels[name].edit(name=name, color=color)
+            else:
+                click.echo(
+                    " - Creating {} on {} (Dryrun: {})".format(
+                        name, repo.name, ctx.obj['dryrun']
+                    )
                 )
-            )
-            if not ctx.obj['dryrun']:
-                repo.create_label(name=name, color=color)
+                if not ctx.obj['dryrun']:
+                    repo.create_label(name=name, color=color)
+    except RateLimitExceededException:
+        click.echo("GitHub rate limit exceeded: Try again with a --key passed in")
 
 
 if __name__ == "__main__":
