@@ -28,7 +28,7 @@ Manage your labels.
 Features
 --------
 
-* TODO
+* Allows you to list all the labels on a repo, or all repos on an organization.
 
 Credits
 ---------
