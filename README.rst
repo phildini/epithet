@@ -18,7 +18,7 @@ Epithet
      :alt: Updates
 
 
-Manage your labels.
+`Manage your labels`_.
 
 
 * Free software: MIT license
@@ -35,6 +35,7 @@ Credits
 
 This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypackage`_ project template.
 
+.. _`Manage your labels`: https://www.wordfugue.com/introducing-epithet/
 .. _Cookiecutter: https://github.com/audreyr/cookiecutter
 .. _`audreyr/cookiecutter-pypackage`: https://github.com/audreyr/cookiecutter-pypackage
 
