@@ -26,24 +26,25 @@ def get_repos(key, org, repo, url):
 
 
 @click.group()
+@click.option('--key', envvar='EPITHET_KEY', help="Github OAuth Token")
 @click.option('--dryrun', is_flag=True, help="Don't actually change or create labels")
 @click.option('--url', help="API URL - change if GitHub Enterprise")
 @click.pass_context
-def cli(ctx, dryrun, url):
-    ctx.obj['dryrun'] = dryrun
-    ctx.obj['url'] = url
-
-
-@cli.command()
-@click.option('--key', help="OAuth Token")
-@click.option('--org', help="Organization to get repos from")
-@click.option('--repo', help="Optionally select a single repo")
-@click.pass_context
-def list(ctx, key, org, repo):
+def cli(ctx, key, dryrun, url):
     if not key:
         click.echo("You must provide a GitHub API v3 key")
         return
-    for repo in get_repos(key, org, repo, ctx.obj['url']):
+    ctx.obj['dryrun'] = dryrun
+    ctx.obj['url'] = url
+    ctx.obj['key'] = key
+
+
+@cli.command()
+@click.option('--org', help="Organization to get repos from")
+@click.option('--repo', help="Optionally select a single repo")
+@click.pass_context
+def list(ctx, org, repo):
+    for repo in get_repos(ctx.obj['key'], org, repo, ctx.obj['url']):
         click.echo("\n * {}:\n".format(repo.name))
         for label in repo.get_labels():
             click.echo(" - {} ({})".format(label.name, label.color))
@@ -53,16 +54,12 @@ def list(ctx, key, org, repo):
 @cli.command()
 @click.option('--name', help="Name of new label")
 @click.option('--color', help="Color of new label")
-@click.option('--key', help="OAuth Token")
 @click.option('--org', help="Organization to get repos from")
 @click.option('--repo', help="Optionally select a single repo")
 @click.pass_context
-def add(ctx, name, color, key, org, repo):
-    if not key:
-        click.echo("You must provide a GitHub API v3 key")
-        return
+def add(ctx, name, color, org, repo):
     click.echo("Adding a label with name: {} and  color: {}".format(name, color))
-    for repo in get_repos(key, org, repo, ctx.obj['url']):
+    for repo in get_repos(ctx.obj['key'], org, repo, ctx.obj['url']):
         click.echo(" * Checking {}".format(repo.name))
         labels = {}
         for label in repo.get_labels():
@@ -86,16 +83,12 @@ def add(ctx, name, color, key, org, repo):
 
 @cli.command()
 @click.option('--name', help="Name of label to delete")
-@click.option('--key', help="OAuth Token")
 @click.option('--org', help="Organization to get repos from")
 @click.option('--repo', help="Optionally select a single repo")
 @click.pass_context
-def delete(ctx, name, key, org, repo):
-    if not key:
-        click.echo("You must provide a GitHub API v3 key")
-        return
+def delete(ctx, name, org, repo):
     click.echo("Deleting label: {}".format(name))
-    for repo in get_repos(key, org, repo, ctx.obj['url']):
+    for repo in get_repos(ctx.obj['key'], org, repo, ctx.obj['url']):
         click.echo(" * Checking {}".format(repo.name))
         labels = {}
         for label in repo.get_labels():
