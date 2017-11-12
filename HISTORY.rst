@@ -2,6 +2,13 @@
 History
 =======
 
+0.0.4 (2017-11-12)
+------------------
+
+* Add "update" command
+* Add ability to set key in environment variable
+* Rework interface
+
 0.0.3 (2017-06-11)
 ------------------
 
