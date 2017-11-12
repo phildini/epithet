@@ -46,6 +46,9 @@ def cli(ctx, key, dryrun, url):
 @click.option('--repo', '-r', help="Optionally select a single repo")
 @click.pass_context
 def list(ctx, label, milestone, org, repo):
+    if not label and not milestone:
+        click.echo("--label or --milestone required")
+        return
     for repo in get_repos(ctx.obj['key'], org, repo, ctx.obj['url']):
         click.echo("\n * {}:\n".format(repo.name))
         if label:
@@ -54,7 +57,6 @@ def list(ctx, label, milestone, org, repo):
         if milestone:
             for milestone in repo.get_milestones():
                 click.echo(" - {} ({})".format(milestone.title))
-
 
 
 @cli.command()
@@ -66,6 +68,9 @@ def list(ctx, label, milestone, org, repo):
 @click.option('--color', '-c', help="Color of new label")
 @click.pass_context
 def add(ctx, label, milestone, org, repo, name, color):
+    if not label and not milestone:
+        click.echo("--label or --milestone required")
+        return
     for repo in get_repos(ctx.obj['key'], org, repo, ctx.obj['url']):
         click.echo(" * Checking {}".format(repo.name))
         if label:
@@ -118,6 +123,9 @@ def add(ctx, label, milestone, org, repo, name, color):
 @click.option('--name', '-n', help="Name of label or milestone to delete")
 @click.pass_context
 def delete(ctx, label, milestone, org, repo, name):
+    if not label and not milestone:
+        click.echo("--label or --milestone required")
+        return
     for repo in get_repos(ctx.obj['key'], org, repo, ctx.obj['url']):
         click.echo(" * Checking {}".format(repo.name))
         if label:
@@ -147,6 +155,49 @@ def delete(ctx, label, milestone, org, repo, name):
                 if not ctx.obj['dryrun']:
                     milestones[name].delete()
 
+
+@cli.command()
+@click.option('--label', '-l', is_flag=True, help="Update label", default=False)
+@click.option('--milestone', '-m', is_flag=True, help='Update milestone', default=False)
+@click.option('--org', '-o', help="Organization")
+@click.option('--repo', '-r', help="Optionally select a single repo")
+@click.option('--name', '-n', help="Name of the existing label")
+@click.option('--new-name', help="New name of the label")
+@click.pass_context
+def update(ctx, label, milestone, org, repo, name, new_name):
+    if not label and not milestone:
+        click.echo("--label or --milestone required")
+        return
+    for repo in get_repos(ctx.obj['key'], org, repo, ctx.obj['url']):
+        click.echo(" * Checking {}".format(repo.name))
+        if label:
+            click.echo("Updating label {}".format(name))
+            labels = {}
+            for label in repo.get_labels():
+                labels[label.name] = label
+            if name in labels:
+                click.echo(
+                    " - Found {} on {}, upating to {} (Dryrun: {})".format(
+                        labels[name].name, repo.name, new_name, ctx.obj['dryrun']
+                    )
+                )
+                if labels[name].name != new_name and not ctx.obj['dryrun']:
+                    labels[name].edit(name=new_name, color=labels[name].color)
+            else:
+                click.echo("{} not found, did you mean 'add'?".format(name))
+        if milestone:
+            click.echo("Updating milestone with name: {}".format(name))
+            milestones = {}
+            for milestone in repo.get_milestones():
+                milestones[milestone.title] = milestone
+            if name in milestones:
+                click.echo(
+                    " - Found {} on {}, upating to {} (Dryrun: {})".format(
+                        milestones[name].name, repo.name, new_name, ctx.obj['dryrun']
+                    )
+                )
+            else:
+                click.echo("{} not found, did you mean 'add'?".format(name))
 
 if __name__ == "__main__":
     main(obj={})
