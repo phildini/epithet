@@ -84,7 +84,8 @@ def add(ctx, label, milestone, org, repo, name, color):
                         labels[name].name, repo.name, ctx.obj['dryrun']
                     )
                 )
-                if labels[name].color != color and not ctx.obj['dryrun']:
+                if labels[name].color != color and not ctx.obj['dryrun'] \
+                   and not repo.archived:
                     labels[name].edit(name=name, color=color)
             else:
                 click.echo(
@@ -92,7 +93,7 @@ def add(ctx, label, milestone, org, repo, name, color):
                         name, repo.name, ctx.obj['dryrun']
                     )
                 )
-                if not ctx.obj['dryrun']:
+                if not ctx.obj['dryrun'] and not repo.archived:
                     repo.create_label(name=name, color=color)
         if milestone:
             click.echo("Adding a milestone with name: {}".format(name))
@@ -111,7 +112,7 @@ def add(ctx, label, milestone, org, repo, name, color):
                         name, repo.name, ctx.obj['dryrun']
                     )
                 )
-                if not ctx.obj['dryrun']:
+                if not ctx.obj['dryrun'] and not repo.archived:
                     repo.create_milestone(title=name)
 
 
