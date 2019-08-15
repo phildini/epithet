@@ -75,16 +75,18 @@ def add(ctx, label, milestone, org, repo, name, color):
         click.echo(" * Checking {}".format(repo.name))
         if label:
             click.echo("Adding a label with name: {} and  color: {}".format(name, color))
-            labels = {}
-            for label in repo.get_labels():
-                labels[label.name] = label
-            if name in labels:
+            labels = {label.name: label for label in repo.get_labels()}
+            if name.lower() in [l.lower() for l in labels.keys()]:
                 click.echo(
                     " - Found {} on {} (Dryrun: {})".format(
-                        labels[name].name, repo.name, ctx.obj['dryrun']
+                        name, repo.name, ctx.obj['dryrun']
                     )
                 )
-                if labels[name].color != color and not ctx.obj['dryrun'] \
+                if name not in labels.keys():
+                    for labelname, label in labels.items():
+                        if labelname.lower() == name.lower():
+                            labels[labelname].edit(name=name, color=color)
+                elif labels[name].color != color and not ctx.obj['dryrun'] \
                    and not repo.archived:
                     labels[name].edit(name=name, color=color)
             else:
@@ -97,13 +99,12 @@ def add(ctx, label, milestone, org, repo, name, color):
                     repo.create_label(name=name, color=color)
         if milestone:
             click.echo("Adding a milestone with name: {}".format(name))
-            milestones = {}
-            for milestone in repo.get_milestones():
-                milestones[milestone.title] = milestone
-            if name in milestones:
+            milestones = {milestone.title: milestone
+                          for milestone in repo.get_milestones()}
+            if name.lower() in [m.lower() for m in milestones.keys()]:
                 click.echo(
                     " - Found {} on {} (Dryrun: {})".format(
-                        milestones[name].name, repo.name, ctx.obj['dryrun']
+                        name, repo.name, ctx.obj['dryrun']
                     )
                 )
             else:
