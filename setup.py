@@ -11,7 +11,7 @@ with open('HISTORY.rst') as history_file:
 
 requirements = [
     'Click>=6.0',
-    'PyGithub==1.34',
+    'PyGithub==1.43.8',
 ]
 
 test_requirements = [
@@ -20,7 +20,7 @@ test_requirements = [
 
 setup(
     name='epithet',
-    version='0.0.3',
+    version='0.0.5',
     description="Manage your labels.",
     long_description=readme + '\n\n' + history,
     author="Philip James",
